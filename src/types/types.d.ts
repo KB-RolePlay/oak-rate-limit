@@ -13,6 +13,7 @@ export interface RatelimitOptions {
   ) => Promise<[number, string]> | [number, string];
   store: Store;
   headers: boolean;
+  ipHeader?: string | null;
   message: string;
   statusCode: number;
   skip: (ctx: Context) => Promise<boolean> | boolean;

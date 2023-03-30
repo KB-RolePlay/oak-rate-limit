@@ -7,6 +7,7 @@ export const DefaultOptions: RatelimitOptions = {
   max: () => [100, "default"],
   store: new MapStore(),
   headers: true,
+  ipHeader: null,
   message: "Too many requests, please try again later.",
   statusCode: 429,
   skip: () => false,
