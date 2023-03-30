@@ -15,7 +15,9 @@ export const RateLimiter = async (
   if (typeof opt.skip !== "function") throw "skip must be a function.";
 
   return async (ctx: Context, next) => {
-    const { ip } = ctx.request;
+    const ip = opt.ipHeader && ctx.request.headers.get(opt.ipHeader)
+      ? ctx.request.headers.get(opt.ipHeader) as string
+      : ctx.request.ip;
     const timestamp = Date.now();
 
     const [maxAmount, uniqueMaxName] = await opt.max(ctx);
@@ -72,8 +74,11 @@ export const onRateLimit = async (
   opt: RatelimitOptions,
 ): Promise<unknown> => {
   const [_maxAmount, uniqueMaxName] = await opt.max(ctx);
+  const ip = opt.ipHeader && ctx.request.headers.get(opt.ipHeader)
+    ? ctx.request.headers.get(opt.ipHeader) as string
+    : ctx.request.ip;
 
-  await opt.store.set(ctx.request.ip, uniqueMaxName, {
+  await opt.store.set(ip, uniqueMaxName, {
     remaining: 0,
     lastRequestTimestamp: Date.now(),
   });
