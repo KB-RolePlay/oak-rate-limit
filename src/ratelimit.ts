@@ -18,42 +18,48 @@ export const RateLimiter = async (
     const { ip } = ctx.request;
     const timestamp = Date.now();
 
+    const [maxAmount, uniqueMaxName] = await opt.max(ctx);
+
     if (await opt.skip(ctx)) return next();
     if (opt.headers) {
       ctx.response.headers.set(
         "X-RateLimit-Limit",
-        await opt.max(ctx).toString(),
+        maxAmount.toString(),
       );
     }
 
     if (
-      await opt.store.has(ip) &&
-      timestamp - (await opt.store.get(ip)!).lastRequestTimestamp >
+      await opt.store.has(ip, uniqueMaxName) &&
+      timestamp -
+            (await opt.store.get(ip, uniqueMaxName)!).lastRequestTimestamp >
         opt.windowMs
     ) {
-      opt.store.delete(ip);
+      opt.store.delete(ip, uniqueMaxName);
     }
-    if (!opt.store.has(ip)) {
-      opt.store.set(ip, {
-        remaining: await opt.max(ctx),
+    if (!opt.store.has(ip, uniqueMaxName)) {
+      opt.store.set(ip, uniqueMaxName, {
+        remaining: maxAmount,
         lastRequestTimestamp: timestamp,
       });
     }
 
-    if (await opt.store.has(ip) && (await opt.store.get(ip)!).remaining === 0) {
+    if (
+      await opt.store.has(ip, uniqueMaxName) &&
+      (await opt.store.get(ip, uniqueMaxName)!).remaining === 0
+    ) {
       await opt.onRateLimit(ctx, next, opt);
     } else {
       await next();
       if (opt.headers) {
         ctx.response.headers.set(
           "X-RateLimit-Remaining",
-          opt.store.get(ip)
-            ? (await opt.store.get(ip)!).remaining.toString()
-            : await opt.max(ctx).toString(),
+          opt.store.get(ip, uniqueMaxName)
+            ? (await opt.store.get(ip, uniqueMaxName)!).remaining.toString()
+            : maxAmount.toString(),
         );
       }
-      opt.store.set(ip, {
-        remaining: (await opt.store.get(ip)!).remaining - 1,
+      opt.store.set(ip, uniqueMaxName, {
+        remaining: (await opt.store.get(ip, uniqueMaxName)!).remaining - 1,
         lastRequestTimestamp: timestamp,
       });
     }
@@ -65,7 +71,9 @@ export const onRateLimit = async (
   _next: () => Promise<unknown>,
   opt: RatelimitOptions,
 ): Promise<unknown> => {
-  await opt.store.set(ctx.request.ip, {
+  const [_maxAmount, uniqueMaxName] = await opt.max(ctx);
+
+  await opt.store.set(ctx.request.ip, uniqueMaxName, {
     remaining: 0,
     lastRequestTimestamp: Date.now(),
   });
