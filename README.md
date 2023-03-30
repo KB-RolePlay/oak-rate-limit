@@ -32,10 +32,11 @@ import { RateLimiter } from "https://deno.land/x/oak_rate_limit/mod.ts";
 const rateLimit = RateLimiter({
   store: STORE, // Using MapStore by default.
   windowMs: 1000, // Window for the requests that can be made in miliseconds.
-  max: (_ctx: Context) => 100, // Max requests within the predefined window.
+  max: (_ctx: Context) => [100, "default"], // Max requests within the predefined window with a unique max value name.
   headers: true, // Default true, it will add the headers X-RateLimit-Limit, X-RateLimit-Remaining.
   message: "Too many requests, please try again later.", // Default message if rate limit reached.
   statusCode: 429, // Default status code if rate limit reached.
+  ipHeader: null, // If you want to don't use a custom header to get the request source IP.
 });
 
 app.use(await rateLimit);
