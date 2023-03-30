@@ -5,22 +5,29 @@ export abstract class Store {
     throw "Not implemented";
   }
 
-  public get(_ip: string): Promise<Ratelimit> | Ratelimit | undefined {
+  public get(
+    _ip: string,
+    _uniqueMaxName: string,
+  ): Promise<Ratelimit> | Ratelimit | undefined {
     throw "Not implemented";
   }
 
   public set(
     _ip: string,
+    _uniqueMaxName: string,
     _ratelimit: Ratelimit,
   ): Promise<Ratelimit> | Map<string, Ratelimit> {
     throw "Not implemented";
   }
 
-  public delete(_ip: string): Promise<boolean> | boolean {
+  public delete(
+    _ip: string,
+    _uniqueMaxName: string,
+  ): Promise<boolean> | boolean {
     throw "Not implemented";
   }
 
-  public has(_ip: string): Promise<boolean> | boolean {
+  public has(_ip: string, _uniqueMaxName: string): Promise<boolean> | boolean {
     throw "Not implemented";
   }
 }

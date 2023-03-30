@@ -10,7 +10,7 @@ export interface RatelimitOptions {
   windowMs: number;
   max: (
     ctx: Context,
-  ) => Promise<number> | number;
+  ) => Promise<[number, string]> | [number, string];
   store: Store;
   headers: boolean;
   message: string;

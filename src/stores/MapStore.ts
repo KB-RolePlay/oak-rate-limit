@@ -13,19 +13,19 @@ export class MapStore extends Store {
     return;
   }
 
-  public get(ip: string) {
-    return this.store.get(ip);
+  public get(ip: string, uniqueMaxName: string) {
+    return this.store.get(`${ip}-${uniqueMaxName}`);
   }
 
-  public set(ip: string, ratelimit: Ratelimit) {
-    return this.store.set(ip, ratelimit);
+  public set(ip: string, uniqueMaxName: string, ratelimit: Ratelimit) {
+    return this.store.set(`${ip}-${uniqueMaxName}`, ratelimit);
   }
 
-  public delete(ip: string) {
-    return this.store.delete(ip);
+  public delete(ip: string, uniqueMaxName: string) {
+    return this.store.delete(`${ip}-${uniqueMaxName}`);
   }
 
-  public has(ip: string) {
-    return this.store.has(ip);
+  public has(ip: string, uniqueMaxName: string) {
+    return this.store.has(`${ip}-${uniqueMaxName}`);
   }
 }

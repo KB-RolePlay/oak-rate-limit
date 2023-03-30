@@ -31,32 +31,32 @@ export class RedisStore extends Store {
     this.initialized = true;
   }
 
-  public async get(ip: string) {
+  public async get(ip: string, uniqueMaxName: string) {
     if (!this.isConnected) throw "[oak-rate-limit] RedisStore is not connected";
-    const data = await this.store!.get(ip);
+    const data = await this.store!.get(`${ip}-${uniqueMaxName}`);
     if (!data) return;
     return JSON.parse(data);
   }
 
-  public async set(ip: string, ratelimit: Ratelimit) {
+  public async set(ip: string, uniqueMaxName: string, ratelimit: Ratelimit) {
     if (!this.isConnected) throw "[oak-rate-limit] RedisStore is not connected";
 
     const newRatelimit = await this.store!
-      .set(ip, JSON.stringify(ratelimit));
+      .set(`${ip}-${uniqueMaxName}`, JSON.stringify(ratelimit));
     return JSON.parse(newRatelimit);
   }
 
-  public async delete(ip: string) {
+  public async delete(ip: string, uniqueMaxName: string) {
     if (!this.isConnected) throw "[oak-rate-limit] RedisStore is not connected";
 
-    const value = Boolean((await this.store!).del(ip));
+    const value = Boolean((await this.store!).del(`${ip}-${uniqueMaxName}`));
     return value;
   }
 
-  public async has(ip: string) {
+  public async has(ip: string, uniqueMaxName: string) {
     if (!this.isConnected) throw "[oak-rate-limit] RedisStore is not connected";
 
-    const value = Boolean((await this.store!).exists(ip));
+    const value = Boolean((await this.store!).exists(`${ip}-${uniqueMaxName}`));
     return value;
   }
 
